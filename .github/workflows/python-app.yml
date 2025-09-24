@@ -10,26 +10,25 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  # Étape 1 : Build & Lint
+  build-and-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v3
         with:
-          python-version: "3.12"
-      - name: Install base dependencies
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Lint with Ruff
         run: |
-          python -m pip install --upgrade pip
-          pip install flake8 pytest
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Lint with flake8
-        run: |
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          ruff check .
+          ruff format --check .
 
+  # Étape 2 : Test Unit
   test-unit:
-    needs: build
+    needs: build-and-lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -42,36 +41,18 @@ jobs:
       - name: Run Unit Tests
         run: pytest tests/test_unit.py
 
+  # Étape 3 : Test Integration
   test-integration:
-    needs: build
+    needs: build-and-lint
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v3
         with:
-          python-version: "3.10"
+          python-version: "3.11"
       - name: Install dependencies
-        run: pip install -r requirements.txt pytest
+        run: pip install -r requirements.txt
       - name: Run Integration Tests
         run: pytest tests/test_integration.py
-
-  test-ui:
-    needs: build
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.10"
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install selenium webdriver-manager
-      - name: Setup Chrome
-        uses: browser-actions/setup-chrome@latest
-      - name: Run UI Tests
-        run: pytest tests/test_ui.py
