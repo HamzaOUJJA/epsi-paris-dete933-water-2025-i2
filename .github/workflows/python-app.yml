@@ -28,7 +28,7 @@ jobs:
 
   # Étape 2 : Test Unit
   test-unit:
-    needs: build-and-lint
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -43,7 +43,7 @@ jobs:
 
   # Étape 3 : Test Integration
   test-integration:
-    needs: build-and-lint
+    needs: build
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
