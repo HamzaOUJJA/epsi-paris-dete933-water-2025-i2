@@ -3,7 +3,6 @@
 import pytest
 from app import create_app
 from app.db import get_db, init_db
-import psycopg2
 import subprocess
 import time
 
