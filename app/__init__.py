@@ -11,7 +11,6 @@ load_dotenv()
 def create_app():
     app = Flask(__name__)
     with app.app_context():
-        init_db()
         init_app(app)
     app.secret_key = os.getenv("SECRET_APP", "noneAZERTY")
     CSRFProtect(app)
