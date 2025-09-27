@@ -1,3 +1,5 @@
+# Ce dépôt est en cours de configuration CI/CD. 
+
 run the server
 
 ```bash
@@ -9,3 +11,4 @@ init some data
 ```bash
 flask --app main sample-data
 ```
+
