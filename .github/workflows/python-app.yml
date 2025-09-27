@@ -48,10 +48,32 @@ jobs:
         run: pytest tests/test_unit.py
 
   # Étape 3 : Test d'Intégration
+  # Fichier : .github/workflows/python-app.yml
+
+# ... autres jobs (build et test-unit)
+
+  # Étape 3 : Test Integration
   test-integration:
     needs: build
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+
+    # DÉMARRAGE DU SERVICE POSTGRESQL
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_USER: ci_user
+          POSTGRES_PASSWORD: ci_password
+          POSTGRES_DB: watertracker_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python 3.11
@@ -60,5 +82,24 @@ jobs:
           python-version: "3.11"
       - name: Install dependencies
         run: pip install -r requirements.txt
+        
+      # CONFIGURATION DE LA BASE DE DONNÉES
+      - name: Set DB environment variables
+        run: |
+          echo "DATABASE_URL=postgresql://ci_user:ci_password@localhost:5432/watertracker_db" >> $GITHUB_ENV
+          echo "DATABASE_HOST=localhost" >> $GITHUB_ENV
+          echo "DATABASE_PORT=5432" >> $GITHUB_ENV
+          echo "DATABASE_USER=ci_user" >> $GITHUB_ENV
+          echo "DATABASE_PASSWORD=ci_password" >> $GITHUB_ENV
+          echo "DATABASE_NAME=watertracker_db" >> $GITHUB_ENV
+      
+      - name: Initialize Database
+        # Cette commande exécute le script SQL pour créer les tables
+        run: |
+          # Attendre que Postgres soit prêt (facultatif mais sécurisant)
+          sleep 10
+          # Exécutez le script d'initialisation de la BDD ici si nécessaire
+          python -c "from app.db import init_db; init_db()" # (ou la commande pertinente)
+
       - name: Run Integration Tests
         run: pytest tests/test_integration.py
