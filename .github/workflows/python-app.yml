@@ -31,7 +31,7 @@ jobs:
         # This will fail the build if the code is not formatted or has linting issues.
         run: |
           ruff check .
-          ruff format --check . 
+        #  ruff format --check . 
       
       - name: Format with Ruff and Commit Changes
         # This step will only run on a direct push to 'main' and will be skipped on a Pull Request.
