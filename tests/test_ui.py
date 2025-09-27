@@ -43,7 +43,7 @@ def test_homepage_title_and_water_form(driver):
     # 3. Vérification de la présence du formulaire d'entrée de l'eau (exemple basé sur des hypothèses)
     try:
         water_input = driver.find_element(By.ID, "water_input") # Supposons que l'ID est 'water_input'
-    except:
+    except NoSuchElementException:
         water_input = driver.find_element(By.NAME, "water") # Ou supposons que le nom est 'water'
     
     assert water_input.is_displayed(), "Le champ de saisie de l'eau doit être visible."
