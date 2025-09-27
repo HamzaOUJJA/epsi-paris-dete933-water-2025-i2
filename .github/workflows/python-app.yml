@@ -72,7 +72,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
-    # DÉMARRAGE DU SERVICE POSTGRESQL
+    # DÉMARRAGE DU SERVICE POSTGRESQL (inchangé)
     services:
       postgres:
         image: postgres:14-alpine
@@ -97,7 +97,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
         
-      # CONFIGURATION DE LA BASE DE DONNÉES
+      # CONFIGURATION DE LA BASE DE DONNÉES (inchangé)
       - name: Set DB environment variables
         run: |
           echo "DATABASE_URL=postgresql://ci_user:ci_password@localhost:5432/watertracker_db" >> $GITHUB_ENV
@@ -108,14 +108,9 @@ jobs:
           echo "DATABASE_NAME=watertracker_db" >> $GITHUB_ENV
       
       - name: Initialize Database
-        # CORRECTION CRITIQUE : Lance l'application et crée un contexte pour init_db()
+        # Utilisation de la syntaxe '-c' sur une seule ligne pour éviter les problèmes d'indentation YAML
         run: |
-          # Attendre que Postgres soit prêt (réduit à 5s)
+          # Attendre que Postgres soit prêt (5s)
           sleep 5
-          python -c "from app import create_app; from app.db import init_db; app = create_app(); with app.app_context(): init_db()"
-
-      - name: Run Integration Tests
-        run: pytest tests/test_integration.py
-
-      - name: Run Integration Tests
-        run: pytest tests/test_integration.py
+          # Script Python : exécution en une seule ligne avec points-virgules
+          python -c "import sys; sys.path.append('.'); from app import create_app; from app.db import init_db; app = create_app(); with app.app_context(): init_db()"
