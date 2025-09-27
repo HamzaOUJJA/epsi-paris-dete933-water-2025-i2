@@ -2,7 +2,7 @@ import psycopg2
 from flask import g, current_app
 import click
 import datetime
-
+import os
 
 def get_db():
     if 'db' not in g:
