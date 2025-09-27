@@ -6,13 +6,13 @@ import os
 
 
 def get_db():
-    if "db" not in g:
+    if 'db' not in g:
         g.db = psycopg2.connect(
+            # Utiliser les variables d'environnement de la CI
             host=os.environ.get("DATABASE_HOST", "localhost"),
-            port=os.environ.get("DATABASE_PORT", "5432"),
-            user=os.environ.get("DATABASE_USER", "ci_user"),
-            password=os.environ.get("DATABASE_PASSWORD", "ci_password"),
-            database=os.environ.get("DATABASE_NAME", "watertracker_db"),
+            database=os.environ.get("DATABASE_NAME", "water"),
+            user=os.environ.get("DATABASE_USER", "water"),
+            password=os.environ.get("DATABASE_PASSWORD", "water")
         )
     return g.db
 
