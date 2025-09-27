@@ -15,39 +15,34 @@ permissions:
 
 jobs:
   # Étape 1 : Build et Lint
+  # Étape 1 : Build et Lint
   build:
     runs-on: ubuntu-latest
     steps:
-      # ... (checkout, setup, install dependencies)
       - uses: actions/checkout@v4
       - name: Set up Python 3.11
-      # ... (votre code) ...
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.11"
       - name: Install dependencies
         run: pip install -r requirements.txt
         
       - name: Lint with Ruff (Check only)
-        # On vérifie si les fichiers DOIVENT être formatés (échec si ce n'est pas le cas)
+        # This will fail the build if the code is not formatted or has linting issues.
         run: |
           ruff check .
-          ruff format --check .  # <--- On remet le --check ici !
+          ruff format --check . 
       
       - name: Format with Ruff and Commit Changes
-        # Cette étape s'exécute SEULEMENT si nous sommes sur la branche 'main' et que l'événement est un push.
-        # Elle ne s'exécutera PAS pendant une Pull Request.
+        # This step will only run on a direct push to 'main' and will be skipped on a Pull Request.
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
-          # 1. Formater (le code sera modifié si nécessaire)
           ruff format .
-          
-          # 2. Configurer Git et pousser seulement s'il y a des changements
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # 3. Commiter seulement s'il y a des fichiers modifiés
           git add .
-          git commit -m "style: Apply automatic ruff formatting" || echo "No formatting changes to commit"
-          
-          # 4. Pousser vers la branche main
+          # Use --allow-empty to avoid failure if no changes are made
+          git commit --allow-empty -m "style: Apply automatic ruff formatting" 
           git push
 
   # Étape 2 : Test Unitaire
