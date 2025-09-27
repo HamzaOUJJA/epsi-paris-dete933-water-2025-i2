@@ -66,6 +66,7 @@ jobs:
 # ... autres jobs (build et test-unit)
 
   # Étape 3 : Test Integration
+  # Étape 3 : Test Integration
   test-integration:
     needs: build
     if: github.event_name == 'pull_request'
@@ -107,12 +108,14 @@ jobs:
           echo "DATABASE_NAME=watertracker_db" >> $GITHUB_ENV
       
       - name: Initialize Database
-        # Cette commande exécute le script SQL pour créer les tables
+        # CORRECTION CRITIQUE : Lance l'application et crée un contexte pour init_db()
         run: |
-          # Attendre que Postgres soit prêt (facultatif mais sécurisant)
-          sleep 10
-          # Exécutez le script d'initialisation de la BDD ici si nécessaire
-          python -c "from app.db import init_db; init_db()" # (ou la commande pertinente)
+          # Attendre que Postgres soit prêt (réduit à 5s)
+          sleep 5
+          python -c "from app import create_app; from app.db import init_db; app = create_app(); with app.app_context(): init_db()"
+
+      - name: Run Integration Tests
+        run: pytest tests/test_integration.py
 
       - name: Run Integration Tests
         run: pytest tests/test_integration.py
