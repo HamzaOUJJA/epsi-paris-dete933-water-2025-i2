@@ -2,7 +2,7 @@ from flask import Flask
 from flask_wtf import CSRFProtect
 from dotenv import load_dotenv
 import os
-from .db import init_app, init_db
+from .db import init_app
 from . import main
 
 load_dotenv()
