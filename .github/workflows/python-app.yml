@@ -108,9 +108,12 @@ jobs:
           echo "DATABASE_NAME=watertracker_db" >> $GITHUB_ENV
       
       - name: Initialize Database
-        # Utilisation de la syntaxe '-c' sur une seule ligne pour éviter les problèmes d'indentation YAML
+        # CORRECTION FINALE : Contourne les erreurs YAML et Python en forçant le contexte Flask avec .push()
         run: |
-          # Attendre que Postgres soit prêt (5s)
+          # Attendre que Postgres soit prêt (5s est sûr)
           sleep 5
-          # Script Python : exécution en une seule ligne avec points-virgules
-          python -c "import sys; sys.path.append('.'); from app import create_app; from app.db import init_db; app = create_app(); with app.app_context(): init_db()"
+          # Script Python en une seule commande, sans problème d'indentation YAML
+          python -c "import sys; sys.path.append('.'); from app import create_app; from app.db import init_db; app = create_app(); app.app_context().push(); init_db()"
+
+      - name: Run Integration Tests
+        run: pytest tests/test_integration.py
