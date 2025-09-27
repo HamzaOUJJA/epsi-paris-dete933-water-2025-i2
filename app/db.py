@@ -5,9 +5,13 @@ import datetime
 
 
 def get_db():
-    if "db" not in g:
+    if 'db' not in g:
         g.db = psycopg2.connect(
-            host="localhost", database="water", user="water", password="water"
+            host=os.environ.get("DATABASE_HOST", "localhost"),
+            port=os.environ.get("DATABASE_PORT", "5432"),
+            user=os.environ.get("DATABASE_USER", "ci_user"),
+            password=os.environ.get("DATABASE_PASSWORD", "ci_password"),
+            database=os.environ.get("DATABASE_NAME", "watertracker_db")
         )
     return g.db
 
